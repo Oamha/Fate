@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application'
+
+def buildDateTime = project.hasProperty("devBuild") ? 1 : new Date().format("yyMMddHHmm").toInteger()
+
+android {
+    if (project.hasProperty("devBuild")) {
+        //禁用png压缩
+        aaptOptions.cruncherEnabled = false
+        splits.abi.enable = false
+        splits.density.enable = false
+    }
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
+    defaultConfig {
+        applicationId rootProject.ext.android.applicationId
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode buildDateTime
+        versionName rootProject.ext.android.versionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            try {
+                storeFile file("../release.jks")
+                storePassword rootProject.ext.sign.releaseStorePassword
+                keyAlias rootProject.ext.sign.releaseKeyAlias
+                keyPassword rootProject.ext.sign.releaseKeyPassword
+                v1SigningEnabled true
+                v2SigningEnabled true
+            } catch (ex) {
+                throw new InvalidUserDataException(ex.toString())
+            }
+        }
+
+        debug {
+            try {
+                storeFile file("../dev.jks")
+                storePassword rootProject.ext.sign.devStorePassword
+                keyAlias rootProject.ext.sign.devKeyAlias
+                keyPassword rootProject.ext.sign.devKeyPassword
+                v1SigningEnabled true
+                v2SigningEnabled true
+            } catch (ex) {
+                throw new InvalidUserDataException(ex.toString())
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField("Boolean", "LOG_DEBUG", "true")
+            buildConfigField("String", "HOST", "\"11.22.22.22\"")
+            shrinkResources false
+            zipAlignEnabled true
+            signingConfig signingConfigs.debug
+        }
+        release {
+            //shrinkEnabled为true，minifyEnabled也要为true
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+}

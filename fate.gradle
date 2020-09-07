@@ -1,0 +1,22 @@
+ext {
+    sign = [
+            devStorePassword    : "112233",
+            devKeyAlias         : "fate-dev-key",
+            devKeyPassword      : "112233",
+            releaseStorePassword: "112233",
+            releaseKeyAlias     : "fate-release-key",
+            releaseKeyPassword  : "112233"
+    ]
+    android = [
+            compileSdkVersion: 29,
+            buildToolsVersion: "29.0.3",
+            applicationId    : "com.oamha.fate",
+            minSdkVersion    : 23,
+            targetSdkVersion : 29,
+            versionCode      : 1,
+            versionName      : "1.0"
+    ]
+    dependencies = [
+
+    ]
+}
